@@ -9,63 +9,7 @@ clientPort = 68
 
 class DHCP_server(object):
 
-
-	def server(self):
-
-		print("DHCP server is starting.")
-		dest = (Dest, clientPort)
-		
-		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-		sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
-		sock.bind(('', listenPort))
-		
-		
-		
-
-		while 1:
-			try:
-				print('\nwaiting DHCPDISCOVER')
-				data, address = sock.recvfrom(MAX_BYTES)
-				print('\nreciving DHCPDISCOVER')
-				print(data)
-		
-				#offer.
-				print('\nsending DHCPOFFER')
-				#data = ack.encode('ascii')
-				data = DHCP_server.dhcpoffer_get()
-				#sock.sendto(data, address)
-				sock.sendto(data, dest)
-		
-				while 1:
-					try:
-						print('\nwaiting DHCPREQUEST')
-						data, address = sock.recvfrom(MAX_BYTES)
-						print('\nreciving DHCPREQUEST')
-						print(data)
-						
-						#Acknowledge.
-						print('\nsending DHCPACK')
-						#data = ack2.encode('ascii')
-						data = DHCP_server.dhcpack_get()
-						#sock.sendto(data, address)
-						sock.sendto(data, dest)
-				
-						break
-					
-					except (KeyboardInterrupt, SystemExit):
-						raise
-					except:
-						traceback.print_exc()
-				
-				break
-			
-			except (KeyboardInterrupt, SystemExit):
-				raise
-			except:
-				traceback.print_exc()
-
-	def dhcpoffer_get():
+	def dhcpoffer_get(self):
 		packet = b''
 		packet += b'\x02'   #Message type: Boot Request (1)
 		packet += b'\x01'   #Hardware type: Ethernet
@@ -93,7 +37,7 @@ class DHCP_server(object):
 		packet += b'\x00' * 26 #end padding
 		return packet
 	
-	def dhcpack_get():
+	def dhcpack_get(self):
 		
 		packet = b''
 		packet += b'\x02'   #Message type: Boot Request (1)
@@ -121,7 +65,60 @@ class DHCP_server(object):
 		packet += b'\xff'
 		packet += b'\x00' * 26   #End Option
 		return packet
-	
+
+	def server(self):
+
+		print("DHCP server is starting.")
+		dest = (Dest, clientPort)
+		
+		sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+		sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+		sock.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)
+		sock.bind(('0.0.0.0', listenPort))
+		
+		
+		
+		while 1:
+			#try:
+				print('\nwaiting DHCPDISCOVER')
+				data, address = sock.recvfrom(MAX_BYTES)
+				print('\nreciving DHCPDISCOVER')
+				print(data)
+		
+				#offer.
+				print('\nsending DHCPOFFER')
+				#data = ack.encode('ascii')
+				data = self.dhcpoffer_get()
+				#sock.sendto(data, address)
+				sock.sendto(data, dest)
+		
+				while 1:
+					#try:
+						print('\nwaiting DHCPREQUEST')
+						data, address = sock.recvfrom(MAX_BYTES)
+						print('\nreciving DHCPREQUEST')
+						print(data)
+						
+						#Acknowledge.
+						print('\nsending DHCPACK')
+						#data = ack2.encode('ascii')
+						data = self.dhcpack_get()
+						#sock.sendto(data, address)
+						sock.sendto(data, dest)
+				
+						break
+					
+					#except (KeyboardInterrupt, SystemExit):
+						#raise
+					#except:
+						#traceback.print_exc()
+				break
+			
+			#except (KeyboardInterrupt, SystemExit):
+				#raise
+			#except:
+			#	traceback.print_exc()
+				
 if __name__ == '__main__':
 	dhcp_server = DHCP_server()
 	dhcp_server.server()
