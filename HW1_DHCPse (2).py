@@ -95,14 +95,14 @@ class DHCP_server(object):
 				while 1:
 					#try:
 						print('\nwaiting DHCPREQUEST')
-						data, address = sock.recvfrom(MAX_BYTES)
+						data, address = recvfrom(MAX_BYTES)
 						print('\nreciving DHCPREQUEST')
 						print(data)
 						
 						#Acknowledge.
 						print('\nsending DHCPACK')
 						#data = ack2.encode('ascii')
-						data = self.dhcpack_get()
+				
 						#sock.sendto(data, address)
 						sock.sendto(data, dest)
 				
